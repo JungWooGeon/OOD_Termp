@@ -34,14 +34,14 @@ std::vector<Position> GameManager::Possible(int** board) {
 		player = p2_;
 	}
 
-	int dx[] = { 0, 1, 0, -1 };
-	int dy[] = { 1, 0, -1, 0 };
+	int dx[] = { 0, 1, 0, -1, 1, -1, 1, -1 };
+	int dy[] = { 1, 0, -1, 0, 1, -1, -1, 1 };
 
 	for (iter = player.begin(); iter != player.end(); iter++) {
 		int x = iter->getX();
 		int y = iter->getY();
 
-		for (int i = 0; i < 4; i++) {
+		for (int i = 0; i < 8; i++) {
 			int nx = x + dx[i];
 			int ny = y + dy[i];
 
@@ -69,4 +69,43 @@ std::vector<Position> GameManager::Possible(int** board) {
 	}
 
 	return possible;
+}
+
+bool GameManager::isFull(int** b_, int size_) {
+	bool isTrue = true;
+	for (int i = 0; i < size_; i++) {
+		for (int j = 0; j < size_; j++) {
+			if (b_[i][j] != 0) {
+				isTrue = false;
+				break;
+			}
+		}
+		if (!isTrue)
+			break;
+	}
+	return isTrue;
+}
+
+bool GameManager::isAll(int** b_, int size_) {
+	bool isTrue = true;
+	int p1_count = 0;
+	int p2_count = 0;
+	for (int i = 0; i < size_; i++) {
+		for (int j = 0; j < size_; j++) {
+			if (b_[i][j] == 1) {
+				p1_count += 1;
+			}
+			else if (b_[i][j] == 2) {
+				p2_count += 2;
+			}
+
+			if (p1_count >= 1 && p2_count >= 1) {
+				isTrue = false;
+				break;
+			}
+		}
+		if (!isTrue)
+			break;
+	}
+	return isTrue;
 }

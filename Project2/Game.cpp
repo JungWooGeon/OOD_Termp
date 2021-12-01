@@ -1,12 +1,10 @@
 #include "Game.h"
 
-int dx[] = { 0, 1, 0, -1 };
-int dy[] = { 1, 0, -1, 0 };
+int dx[] = { 0, 1, 0, -1, 1, -1, 1, -1 };
+int dy[] = { 1, 0, -1, 0, 1, -1, -1, 1 };
 
-bool reverse(int x, int y, int direction, int** b);
+bool reverse(int x, int y, int direction, int** b, int size_);
 void turn_change(int *turn_);
-bool isFull(int** b_, int size_);
-bool isAll(int** b_, int size_);
 
 Game::Game(int size, int** b) : size_(size), b_(b){
 	gm_ = GameManager::GetManager();
@@ -26,12 +24,12 @@ Game::Game(int size, int** b) : size_(size), b_(b){
 void Game::Play() {
 	while (true) {
 		// 판이 가득 찼을 경우
-		if (isFull(b_, size_)) {
+		if (gm_->isFull(b_, size_)) {
 			printf("판에 돌이 가득 찼습니다.\n 게임을 종료합니다.\n");
 			break;
 		}
 		// 한 쪽이 모든 돌을 뒤집었을 경우
-		if (isAll(b_, size_)) {
+		if (gm_->isAll(b_, size_)) {
 			printf("Player %d가 승리하였습니다.", b_[0][0]);
 			break;
 		}
@@ -93,7 +91,7 @@ void Game::Play() {
 					b_[input_x][input_y] = turn_;
 
 					// 뒤집기
-					for (int i = 0; i < 4; i++) {
+					for (int i = 0; i < 8; i++) {
 						int nx = input_x + dx[i];
 						int ny = input_y + dy[i];
 
@@ -101,7 +99,7 @@ void Game::Play() {
 							continue;
 
 						if (b_[input_x][input_y] != b_[nx][ny] && b_[nx][ny] != 0) {
-							reverse(nx, ny, i, b_);
+							reverse(nx, ny, i, b_, size_);
 						}
 					}
 
@@ -124,15 +122,18 @@ void Game::Play() {
 	}
 }
 
-bool reverse(int x, int y, int direction, int** b) {
+bool reverse(int x, int y, int direction, int** b, int size_) {
 	int nx = x + dx[direction];
 	int ny = y + dy[direction];
+
+	if (nx < 0 || ny < 0 || nx >= size_ || ny >= size_)
+		return false;
 
 	if (b[nx][ny] == 0)
 		return false;
 
 	if (b[x][y] == b[nx][ny]) {
-		bool isTrue = reverse(nx, ny, direction, b);
+		bool isTrue = reverse(nx, ny, direction, b, size_);
 		if (isTrue) {
 			b[x][y] = b[nx][ny];
 		}
@@ -151,43 +152,4 @@ void turn_change(int *turn_) {
 	else {
 		*turn_ = 1;
 	}
-}
-
-bool isFull(int** b_, int size_) {
-	bool isTrue = true;
-	for (int i = 0; i < size_; i++) {
-		for (int j = 0; j < size_; j++) {
-			if (b_[i][j] != 0) {
-				isTrue = false;
-				break;
-			}
-		}
-		if (!isTrue)
-			break;
-	}
-	return isTrue;
-}
-
-bool isAll(int** b_, int size_) {
-	bool isTrue = true;
-	int p1_count = 0;
-	int p2_count = 0;
-	for (int i = 0; i < size_; i++) {
-		for (int j = 0; j < size_; j++) {
-			if (b_[i][j] == 1) {
-				p1_count += 1;
-			}
-			else if (b_[i][j] == 2) {
-				p2_count += 2;
-			}
-
-			if (p1_count >= 1 && p2_count >= 1) {
-				isTrue = false;
-				break;
-			}
-		}
-		if (!isTrue)
-			break;
-	}
-	return isTrue;
 }
